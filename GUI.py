@@ -11,8 +11,6 @@ class GUI:
         self.root.geometry("800x600")
         self.stop_auto = False
 
-        self.tool = TOOL()
-
         # Hàng đợi log để xử lý từ luồng chính
         self.log_queue = queue.Queue()
         self.root.after(100, self.process_log_queue)
@@ -98,9 +96,10 @@ class GUI:
 
     def start_auto(self, i):
         try:
-            self.tool.get_info(self.list_token[i], log=self.log)
-            self.tool.dat_nick(self.list_token[i], self.list_uid[i], log=self.log)
-            self.tool.run(self.list_token[i], self.list_mail[i], self.list_proxy[i], self.stop_auto, log=self.log)
+            tool = TOOL()
+            tool.get_info(self.list_token[i], log=self.log)
+            tool.dat_nick(self.list_token[i], self.list_uid[i], log=self.log)
+            tool.run(self.list_token[i], self.list_mail[i], self.list_proxy[i], self.stop_auto, log=self.log)
         except Exception as e:
             self.log(f"❌ Lỗi ở tài khoản {self.list_mail[i]}: {e}")
 

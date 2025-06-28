@@ -6,6 +6,7 @@ class TOOL:
 
     def __init__(self):
         self.httpx = cloudscraper.create_scraper()
+        self.cookies = {}
         self.url_get_jobs = {
             0: "https://tuongtaccheo.com/kiemtien/likepostvipcheo/getpost.php",
             1: "https://tuongtaccheo.com/kiemtien/likepostvipre/getpost.php",
@@ -39,7 +40,7 @@ class TOOL:
             coin = data["data"]["sodu"]
             log("Login thành công!")
             log(f"Token: {token} | User: {user} | Coin: {coin}")
-            self.cookie = respose.headers["Set-Cookie"].split(";")[0]
+            self.cookies[token] = respose.headers["Set-Cookie"].split(";")[0]
         except:
             log(f"Token không hợp lệ: {token}")
 
@@ -48,7 +49,8 @@ class TOOL:
             log(f"UID: {uid} | Token: {token}")
             respone = self.httpx.get(f"https://tuongtaccheo.com/cauhinh/datnick.php", headers={
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-                "Cookie": self.cookie
+                "Cookie": self.cookies.get(token, "")
+
             },data={
                 "iddat[]": f"{uid}",
                 "loai":"fb"
@@ -70,12 +72,13 @@ class TOOL:
                 time.sleep(3)
                 response = self.httpx.post(f"{self.url_get_coin[a]}", headers={
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-                    "Cookie": self.cookie,
+                    "Cookie": self.cookies.get(token, ""),
                     'x-requested-with':"XMLHttpRequest",
                     "content-type": "application/x-www-form-urlencoded"
                 }, data={
                     "id": id,
                 }, timeout=10).json()
+                
                 if "Thành công" in response["mess"]:
                     coin = response["mess"].split("cộng ")[1].split(" ")[0]
                     log(f"[{mail}][LIKE][{id}][+{coin}XU]")
@@ -111,13 +114,15 @@ class TOOL:
                 time.sleep(3)
                 response = self.httpx.post(f"{self.url_get_coin[a]}", headers={
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-                    "Cookie": self.cookie,
+                    "Cookie": self.cookies.get(token, ""),
                     'x-requested-with':"XMLHttpRequest",
                     "content-type": "application/x-www-form-urlencoded"
                 }, data={
                     "id": id,
                     "loaicx": loai
                 }, timeout=10).json()
+                
+
                 if "Thành công" in response["mess"]:
                     coin = response["mess"].split("cộng ")[1].split(" ")[0]
                     log(f"[{mail}][{loai}][{id}][+{coin}XU]")
@@ -148,12 +153,13 @@ class TOOL:
                 time.sleep(3)
                 response = self.httpx.post(f"{self.url_get_coin[a]}", headers={
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-                    "Cookie": self.cookie,
+                    "Cookie": self.cookies.get(token, ""),
                     'x-requested-with':"XMLHttpRequest",
                     "content-type": "application/x-www-form-urlencoded"
                 }, data={
                     "id": id,
                 }, timeout=10).json()
+                
                 if "Thành công" in response["mess"]:
                     coin = response["mess"].split("cộng ")[1].split(" ")[0]
                     log(f"[{mail}][CMT][{id}][+{coin}XU]")
@@ -183,12 +189,13 @@ class TOOL:
                 time.sleep(3)
                 response = self.httpx.post(f"{self.url_get_coin[a]}", headers={
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-                    "Cookie": self.cookie,
+                    "Cookie": self.cookies.get(token, ""),
                     'x-requested-with':"XMLHttpRequest",
                     "content-type": "application/x-www-form-urlencoded"
                 }, data={
                     "id": id,
                 }, timeout=10).json()
+                
                 if "Thành công" in response["mess"]:
                     coin = response["mess"].split("cộng ")[1].split(" ")[0]
                     log(f"[{mail}][SUB][{id}][+{coin}XU]")
@@ -217,12 +224,13 @@ class TOOL:
                 time.sleep(3)
                 response = self.httpx.post(f"{self.url_get_coin[a]}", headers={
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-                    "Cookie": self.cookie,
+                    "Cookie": self.cookies.get(token, ""),
                     'x-requested-with':"XMLHttpRequest",
                     "content-type": "application/x-www-form-urlencoded"
                 }, data={
                     "id": id,
                 }, timeout=10).json()
+                
                 if "Thành công" in response["mess"]:
                     coin = response["mess"].split("cộng ")[1].split(" ")[0]
                     log(f"[{mail}][PAGE][{id}][+{coin}XU]")
@@ -268,7 +276,7 @@ class TOOL:
                         try:
                             response = self.httpx.get(self.url_get_jobs[i], headers={
                                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-                                "Cookie": self.cookie,
+                                "Cookie": self.cookies.get(token, ""),
                                 'x-requested-with':"XMLHttpRequest",
                                 "content-type": "application/x-www-form-urlencoded"
                             }, timeout=10)
