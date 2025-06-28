@@ -175,7 +175,8 @@ class TOOL:
                 except:
                     menu = page.get_by_role("button", name="Xem thêm tùy chọn trong phần cài đặt trang cá nhân")
                     menu.nth(0).click(timeout=5000)
-                    page.get_by_role("menuitem").filter(has_text="Theo dõi").click(tineout=5000)
+                    page.wait_for_timeout(5000)
+                    page.get_by_role("menuitem").filter(has_text="Theo dõi").click(tineout=10000)
                 time.sleep(3)
                 response = self.httpx.post(f"{self.url_get_coin[a]}", headers={
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
@@ -203,12 +204,12 @@ class TOOL:
                 page.evaluate("window.scrollBy({ top: 150, behavior: 'smooth' })")
                 page.wait_for_timeout(1000)
                 try:
-                    button_follow = page.get_by_role("button", name="Theo dõi")
+                    button_follow = page.get_by_role("button", name="Like")
                     button_follow.nth(0).click(timeout=5000)
                 except:
                     menu = page.get_by_role("button", name="Xem thêm tùy chọn trong phần cài đặt trang cá nhân")
                     menu.nth(0).click(timeout=5000)
-                    page.get_by_role("menuitem").filter(has_text="Theo dõi").click(tineout=5000)
+                    page.get_by_role("menuitem").filter(has_text="Like").click(tineout=5000)
                 time.sleep(3)
                 response = self.httpx.post(f"{self.url_get_coin[a]}", headers={
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
