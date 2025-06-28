@@ -65,10 +65,6 @@ class TOOL:
                 page.wait_for_timeout(10000)
                 page.evaluate("window.scrollBy({ top: 150, behavior: 'smooth' })")
                 page.wait_for_timeout(1000)
-                try:
-                    page.get_by_role("button", name="Đóng", exact=True).nth(0).click(force=True,timeout=5000)
-                except:
-                    pass
                 page.get_by_role("button", name="Thích", exact=True).nth(0).hover(force=True,timeout=5000)
                 page.get_by_role("button", name="Thích", exact=True).nth(0).click(force=True,timeout=5000)
                 time.sleep(3)
@@ -96,10 +92,7 @@ class TOOL:
             try:
                 page.goto(link, wait_until="load")
                 page.wait_for_timeout(10000)
-                try:
-                    page.get_by_role("button", name="Đóng", exact=True).nth(0).click(force=True,timeout=5000)
-                except:
-                    pass
+                
                 page.get_by_role("button", name="Thích", exact=True).nth(0).hover(force=True,timeout=5000)
                 # Hover vào nút Like để mở menu cảm xúc
                 if loai == "LOVE":
@@ -142,10 +135,7 @@ class TOOL:
             try:
                 page.goto(link, wait_until="load")
                 page.wait_for_timeout(10000)
-                try:
-                    page.get_by_role("button", name="Đóng", exact=True).nth(0).click(force=True,timeout=5000)
-                except:
-                    pass
+                
                 page.evaluate("window.scrollBy({ top: 150, behavior: 'smooth' })")
                 page.wait_for_timeout(1000)
                 comment_button = page.get_by_role("button", name="Viết bình luận")
@@ -181,10 +171,7 @@ class TOOL:
                 page.wait_for_timeout(10000)
                 page.evaluate("window.scrollBy({ top: 150, behavior: 'smooth' })")
                 page.wait_for_timeout(1000)
-                try:
-                    page.get_by_role("button", name="Đóng", exact=True).nth(0).click(force=True,timeout=5000)
-                except:
-                    pass
+                
                 try:
                     button_follow = page.get_by_role("button", name="Theo dõi")
                     button_follow.nth(0).click(timeout=5000)
@@ -219,10 +206,7 @@ class TOOL:
                 page.wait_for_timeout(10000)
                 page.evaluate("window.scrollBy({ top: 150, behavior: 'smooth' })")
                 page.wait_for_timeout(1000)
-                try:
-                    page.get_by_role("button", name="Đóng", exact=True).nth(0).click(force=True,timeout=5000)
-                except:
-                    pass
+                
                 try:
                     button_follow = page.get_by_role("button", name="Like")
                     button_follow.nth(0).click(timeout=5000)
