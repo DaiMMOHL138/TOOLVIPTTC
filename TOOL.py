@@ -65,6 +65,10 @@ class TOOL:
             try:
                 page.goto(link, wait_until="load")
                 page.wait_for_timeout(10000)
+                try:
+                    page.get_by_role("dialog", name="Sự việc").get_by_label("Đóng").click(timeout = 5000)
+                except:
+                    pass
                 page.evaluate("window.scrollBy({ top: 150, behavior: 'smooth' })")
                 page.wait_for_timeout(1000)
                 page.get_by_role("button", name="Thích", exact=True).nth(0).hover(force=True,timeout=5000)
@@ -95,7 +99,10 @@ class TOOL:
             try:
                 page.goto(link, wait_until="load")
                 page.wait_for_timeout(10000)
-                
+                try:
+                    page.get_by_role("dialog", name="Sự việc").get_by_label("Đóng").click(timeout = 5000)
+                except:
+                    pass
                 page.get_by_role("button", name="Thích", exact=True).nth(0).hover(force=True,timeout=5000)
                 # Hover vào nút Like để mở menu cảm xúc
                 if loai == "LOVE":
@@ -140,7 +147,10 @@ class TOOL:
             try:
                 page.goto(link, wait_until="load")
                 page.wait_for_timeout(10000)
-                
+                try:
+                    page.get_by_role("dialog", name="Sự việc").get_by_label("Đóng").click(timeout = 5000)
+                except:
+                    pass
                 page.evaluate("window.scrollBy({ top: 150, behavior: 'smooth' })")
                 page.wait_for_timeout(1000)
                 comment_button = page.get_by_role("button", name="Viết bình luận")
@@ -177,7 +187,10 @@ class TOOL:
                 page.wait_for_timeout(10000)
                 page.evaluate("window.scrollBy({ top: 150, behavior: 'smooth' })")
                 page.wait_for_timeout(1000)
-                
+                try:
+                    page.get_by_role("dialog", name="Sự việc").get_by_label("Đóng").click(timeout = 5000)
+                except:
+                    pass
                 try:
                     button_follow = page.get_by_role("button", name="Theo dõi")
                     button_follow.nth(0).click(timeout=5000)
@@ -213,7 +226,10 @@ class TOOL:
                 page.wait_for_timeout(10000)
                 page.evaluate("window.scrollBy({ top: 150, behavior: 'smooth' })")
                 page.wait_for_timeout(1000)
-                
+                try:
+                    page.get_by_role("dialog", name="Sự việc").get_by_label("Đóng").click(timeout = 5000)
+                except:
+                    pass
                 try:
                     button_follow = page.get_by_role("button", name="Like")
                     button_follow.nth(0).click(timeout=5000)
@@ -239,10 +255,11 @@ class TOOL:
                 
                 continue
             
-    def run(self,token, mail,proxy, stop=False, log=print):
+    def run(self, token, mail, proxy, stop=False, log=print):
         user_data_dir = f"./profile/{mail}"
+
         if not proxy:
-            data_proxy = {}
+            data_proxy = None
         else:
             ip, port, user, passwd = proxy.split(":")
             data_proxy = {
@@ -250,80 +267,70 @@ class TOOL:
                 "username": user,
                 "password": passwd
             }
+
         with sync_playwright() as p:
-            
+            # Tạo context trình duyệt
             browser = p.chromium.launch_persistent_context(
-                user_data_dir,channel="chrome",
+                user_data_dir=user_data_dir,channel="chrome",
                 headless=False,
                 proxy=data_proxy,
-                args=["--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
-                ,"--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-blink-features=AutomationControlled",
-                      "--window-size=500,500"]
+                args=[
+                    "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+                    "--no-sandbox",
+                    "--disable-setuid-sandbox",
+                    "--disable-extensions",
+                    "--disable-background-networking",
+                    "--disable-background-timer-throttling",
+                    "--disable-gpu",
+                    "--disable-backgrounding-occluded-windows",
+                    "--blink-settings=imagesEnabled=false",
+                    "--disable-blink-features=AutomationControlled",
+                    "--window-size=500,500"
+                ]
             )
+
+            # Tạo page mới nếu context không có sẵn
             page = browser.pages[0] if browser.pages else browser.new_page()
             page.set_viewport_size({"width": 500, "height": 500})
+
+            # Tắt ảnh, video, font
+            page.route("**/*", lambda route, request: route.abort()
+                        if request.resource_type in ["image", "media", "font"] else route.continue_())
+
             page.goto("https://www.facebook.com/", wait_until="load")
 
-            while True:
-                if stop:
-                    log("🛑 Dừng tự động")
-                    break
-                else:
-                    for i in range(7):
+            # Vòng lặp chính chạy nhiệm vụ
+            while not stop:
+                for i in range(7):
+                    try:
+                        response = self.httpx.get(self.url_get_jobs[i], headers={
+                            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+                            "Cookie": self.cookies.get(token, ""),
+                            "x-requested-with": "XMLHttpRequest",
+                            "content-type": "application/x-www-form-urlencoded"
+                        }, timeout=10)
 
+                        jobs = response.json()
+
+                        if i in [0, 1]:
+                            self.auto_like(page, token, mail, jobs, i, stop, log)
+                        elif i in [2, 3]:
+                            self.auto_CX(page, token, mail, jobs, i, stop, log)
+                        elif i == 4:
+                            self.auto_CMT(page, token, mail, jobs, i, stop, log)
+                        elif i == 5:
+                            self.auto_sub(page, token, mail, jobs, i, stop, log)
+                        elif i == 6:
+                            self.auto_LIKE_PAGE(page, token, mail, jobs, i, stop, log)
+
+                        if stop:
+                            log("🛑 Dừng tự động")
+                            break
+                    except TimeoutError:
+                        log(f"⏱️ Timeout khi lấy nhiệm vụ từ {self.url_get_jobs[i]}")
+                    except Exception as e:
                         try:
-                            response = self.httpx.get(self.url_get_jobs[i], headers={
-                                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-                                "Cookie": self.cookies.get(token, ""),
-                                'x-requested-with':"XMLHttpRequest",
-                                "content-type": "application/x-www-form-urlencoded"
-                            }, timeout=10)
-                            if i == 0:
-                                jobs = response.json()
-                                self.auto_like(page,token, mail, jobs,i, stop, log)
-                                if stop:
-                                    log("🛑 Dừng tự động")
-                                    break
-                            elif i == 1:
-                                jobs = response.json()
-                                self.auto_like(page,token, mail, jobs,i, stop, log)
-                                if stop:
-                                    log("🛑 Dừng tự động")
-                                    break
-                            elif i == 2:
-                                jobs = response.json()
-                                self.auto_CX(page,token, mail, jobs,i, stop, log)
-                                if stop:
-                                    log("🛑 Dừng tự động")
-                                    break
-                            elif i == 3:
-                                jobs = response.json()
-                                self.auto_CX(page,token, mail, jobs,i, stop, log)
-                                if stop:
-                                    log("🛑 Dừng tự động")
-                                    break
-                            elif i == 4:
-                                jobs = response.json()
-                                self.auto_CMT(page,token, mail, jobs,i, stop, log)
-                                if stop:
-                                    log("🛑 Dừng tự động")
-                                    break
-                            elif i == 5:
-                                jobs = response.json()
-                                self.auto_sub(page,token, mail, jobs,i, stop, log)
-                                if stop:
-                                    log("🛑 Dừng tự động")
-                                    break
-                            elif i == 6:
-                                jobs = response.json()
-                                self.auto_LIKE_PAGE(page,token, mail, jobs,i, stop, log)
-                                if stop:
-                                    log("🛑 Dừng tự động")
-                                    break
-                        except TimeoutError:
-                            print(f"Timeout khi lấy nhiệm vụ từ {self.url_get_jobs[i]}")
-                            continue
+                            countdown = response.json().get("countdown", 5)
+                            time.sleep(countdown + 1)
                         except:
-                            time.sleep(response.json()["countdown"] + 5)
+                            time.sleep(5)

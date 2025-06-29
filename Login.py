@@ -49,6 +49,7 @@ class Login:
                 page.click("button[name='login']")
             except Exception as e:
                 pass
+            
             input("Please log in to your Facebook account and then press Enter...")
 
             
